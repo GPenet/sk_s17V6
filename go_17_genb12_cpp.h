@@ -25,7 +25,6 @@ void GEN_BANDES_12::InitialSockets2Setup() {//load permanent data
 	}
 }
 void GEN_BANDES_12::SecondSockets2Setup() {
-	ntua2 = 0; nactive2 = 0;
 	Build_CheckUAs_Subsets_Table();
 	for (i81 = 0; i81 < 81; i81++) {// initial socket 2
 		SGUA2 & w = tsgua2[i81];
@@ -67,12 +66,9 @@ void GEN_BANDES_12::SecondSockets2Setup() {
 			if ((fl & w.digs) == w.digs) GuaCollect(fl);
 		}
 		SecondSockets2MoreUAs();
-		if (nua2) {
-			if (nua2 > 30)nua2 = 30;
-			ntua2 += nua2;
-			guaw.Init(nua2, 0, i81);
-			tguas.AddStart(guaw);
-		}
+		if (nua2 > 30)nua2 = 30;
+		guaw.Init(nua2, 0, i81);
+		tguas.AddStart(guaw); // can be empty
 	}
 }
 
@@ -380,7 +376,6 @@ void GEN_BANDES_12::InitialSockets3Setup() {//load permanent data
 	}
 }
 void GEN_BANDES_12::SecondSockets3Setup() {
-	ntua3 = 0; nactive3 = 0;
 	for (int i81 = 0; i81 < 81; i81++) {// initial socket 2
 		SGUA3 &w = tsgua3[i81];
 		w.dig1 = gang27[w.id1];
@@ -438,12 +433,9 @@ void GEN_BANDES_12::SecondSockets3Setup() {
 				if ((fl & digs) == digs) GuaCollect(fl);
 			}
 		}
-		if (nua2) {
-			if (nua2 > 30)nua2 = 30;
-			ntua2 += nua2;
-			guaw.Init(nua2, 1, i81);
-			tguas.AddStart(guaw);
-		}
+		if (nua2 > 30)nua2 = 30;
+		guaw.Init(nua2, 1, i81);
+		tguas.AddStart(guaw);// can be empty
 	}
 	//cout << "endSecondSockets3Setup ntua3=" << ntua3
 	//	<< " nactive i81=" << nactive3 << endl;

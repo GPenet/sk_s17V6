@@ -25,7 +25,7 @@ const char * libs_c17_00_cpt2g[60] = {
 	"18 3A blocs nb stack",//18
 	"19 3A blocs nb sock2",//19
 	"20 3A blocs nb ok",//20
-	"21 entry 3a",//21
+	"21 pass mincount",//21
 	"22 3a mincount <=6",//22
 	"23 ",//23
 	"24  ",//24
@@ -50,15 +50,15 @@ const char * libs_c17_00_cpt2g[60] = {
 	"43 ",
 	"44 ",
 	"45 step dead  b2",
-	"46 ",
-	"47 ",
-	"48 ",
+	"46 n cleamore",
+	"47 n cleanplus",
+	"48 n clean b",
 	"49 ",
 	"50 count clean",
-	"51  <= switch bandes3 bandes",
-	"52  > switch bandes3 bandes",
-	"53  calls band3b",
-	"54 call IsMultiple(int bf)",
+	"51 clean0 ",
+	"52 cleanmore  ",
+	"53 cleanplus  ",
+	"54 clean b ",
 	"55 zhou[1].CallMultipleB3",
 	"56 nmiss1 ua of found",
 	"57 nmiss1 go subcritical",

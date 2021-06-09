@@ -208,6 +208,7 @@ int STD_B3::IsGua(int i81) {
 	if (r1 == r2) {// gua2
 		guas.ua_pair[i81] = ua;
 		int i27 = 9 * r1 + w81.i9;// index 0-26 of the pair
+		i_27_to_81[i27] = i81;
 		guas.isguasocket2.Set_c(i81);
 		int imini= 3 * r1 + w81.i9 / 3;
 		guas.ua2_imini[i81] = imini;
@@ -257,84 +258,6 @@ int STD_B3::IsGua(int i81) {
 	}
 	return 0;
 }
-
-int STD_B3::IsGua4s(int i81) {
-	GEN_BANDES_12::SGUA2 w81 = genb12.tsgua2[i81];
-	int gcol1 = genb12.gangcols[w81.col1],
-		gcol2 = genb12.gangcols[w81.col2],
-		digs4=(gcol1|gcol2)^ w81.digs,dig_alone=0;
-	int * d10 = &band0[w81.col1], *d20 = &band0[w81.col2];
-	int d1 = w81.dig1, d2 = w81.dig2,
-		ua = 0,
-		rx[2], nrx=0, cell1,cell2;
-	for (int irow = 0; irow < 3; irow++) {
-		int c1 = d10[9 * irow], c2 = d20[9 * irow],
-			bitc1=1<<c1,bitc2=1<<c2,digsr=bitc1|bitc2;
-		if (bitc1&digs4 && bitc2&digs4) { // full mini row
-			cell1 = 9 * irow + w81.col1;
-			cell2 = 9 * irow + w81.col2;
-			ua |= (1 << cell1) | (1 << cell2);
-		}
-		else if (digsr&digs4) {// one cell active
-			if(bitc1&digs4)cell1 = 9 * irow + w81.col1;
-			else cell1 = 9 * irow + w81.col2;
-			ua |= 1 << cell1;
-			dig_alone |= 1 << band0[cell1];
-			rx[nrx++] = irow;
-		}
-	}
-	if (!nrx) {// we have the 4 cells ua
-		return ua;
-
-	}
-	else {// then nrx=2  find the colum if any
-		for (int i = 0; i < 9; i++) {
-			int c1= 9 * rx[0] + i,
-				c2 = 9 * rx[1] + i,
-				d1= band0[c1],
-				d2 = band0[c2],
-				d12= (1 << d1) | (1 << d2);
-			if (d12 == dig_alone) {
-				ua |= (1 << c1) | (1 << c2);
-				return ua;
-			}
-		}
-	}
-	return 0;
-}
-int STD_B3::IsGua4s2(int i81_1, int i81_2, int i27) {
-	return 0;
-}
-
-
-int STD_B3::Is2Rows(int i81_1, int i81_2) {// GUAS 2X2 
-	GEN_BANDES_12::SGUA2 w1 = genb12.tsgua2[i81_1], w2 = genb12.tsgua2[i81_2];
-	uint32_t rows = 0, d1 = w1.dig1, d2 = w1.dig2,pat=0;
-	int tcol[4],* tdcol[4];
-	tcol[0] = w1.col1;
-	tcol[1] = w1.col2;
-	tcol[2] = w2.col1;
-	tcol[3] = w2.col2;
-
-	tdcol[0] = &band0[w1.col1];
-	tdcol[1] = &band0[w1.col2];
-	tdcol[2] = &band0[w2.col1];
-	tdcol[3] = &band0[w2.col2];
-
-	for (int irow = 0,drow=0; irow < 3; irow++,drow+=9) {
-		for (int icol = 0; icol < 4; icol++) {
-			int col= tcol[icol],cell=drow+col, c = band0[cell];
-			if (c == d1 || c == d2) {
-				rows |= 1 << irow;
-				pat |= 1 << (cell);
-			}
-		}
-	}
-	pat2x2[i81_1] = pat;
-	if (_popcnt32(rows) == 2) return 1; else return 0;
-}
-
-
 int STD_B3::IsGua3(int i81) {
 	GEN_BANDES_12::SGUA3 w81 = genb12.tsgua3[i81];
 	int *g = genb12.gang27,//the gangster 
@@ -347,6 +270,7 @@ int STD_B3::IsGua3(int i81) {
 	for (int irow = 0; irow < 3; irow++) {
 		int imini = stack + 3 * irow, 
 			*pmini = &band0[9 * irow + 3 * stack];
+		i_9_to_81[imini] = i81;
 		if (mrpat != minirows_bf[imini])continue;
 		// possible triplet, must be right digit in right place
 		if (d1 != pmini[0] || d2 != pmini[1])continue;
@@ -383,7 +307,6 @@ void STD_B3::PrintB3Status() {
 	cout << guas.isguasocket2.String128(ws) << " sock2" << endl;
 	cout << guas.isguasocket2_46.String128(ws) << " sock2_46" << endl;
 	cout << guas.isguasocket3.String128(ws) << " sock3" << endl;
-	cout << guas.isguasocket4s.String128(ws) << " sock4s" << endl;
 }
 
 //==================== sockets UA2s UA3s control
