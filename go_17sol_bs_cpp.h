@@ -2102,9 +2102,10 @@ int STD_B3::Clean0() {// critical code first 256 guas
 		V ^= (uint64_t)1 << cc64;// clear bit
 		Insert3(cc64 +47);
 	}
-	smin.SetMincount();
+	MINCOUNT sm = smin;
+	sm.SetMincount();
 #ifdef DEBUGKNOWN
-	smin.Status("status clean0 "); 
+	sm.Status("status clean0 "); 
 	if ( DEBUGKNOWN>1) {
 		{// print uas guas 2 guas 3   
 			register uint32_t cc64;
@@ -2130,7 +2131,7 @@ int STD_B3::Clean0() {// critical code first 256 guas
 		}
 	}
 #endif	 
-	if (smin.mincount > 6)return 0;
+	if (sm.mincount > 6)return 0;
 	stack_count.u64 = g17b.stack_count.u64 + smin.Count_per_stack().u64;
 	if (stack_count.u16[0] > 6 || stack_count.u16[1] > 6 ||
 		stack_count.u16[2] > 6) return 0; // not ok
@@ -2339,13 +2340,11 @@ void G17B::GoB3_4() {
 				}
 				if (!andx) {//no 2 clues killing outfield
 					// add outfield to infield and expand
-					memcpy(&uasb3_1[nuasb3_1], uasb3_2, nuasb3_2 * sizeof uasb3_1[0]);
-					nuasb3_1 += nuasb3_2;
-					ExpandB3();
-					return;
-				}
+					GoB3_4Expand();		return;		}
 			}
+			else {	GoB3_4Expand();	return;		}
 		}
+		else {	GoB3_4Expand();		return;	}
 	}
 	// 2 out field is possible assign first stacks locked 
 	p_cpt2g[11]++;
@@ -2372,7 +2371,11 @@ void G17B::GoB3_4() {
 	hh0.GoMiss2((*myband3), uamin);
 
 }
-
+void G17B::GoB3_4Expand() {
+	memcpy(&uasb3_1[nuasb3_1], uasb3_2, nuasb3_2 * sizeof uasb3_1[0]);
+	nuasb3_1 += nuasb3_2;
+	ExpandB3();
+}
 
 //__________ phase 2___ find band 3 clues for one band 3
 
@@ -2406,11 +2409,11 @@ void G17B3HANDLER::GoMiss1(STD_B3 & b3) {
 	active_b3 = smin.critbf;
 	known_b3 = rknown_b3 = 0;
 	wua = g17b.andmiss1;
-	if (g17b.debug17) {
+	if (0) {
 		cout << "miss1  "<< endl;
 		cout << Char27out(wua) << "wua"<< endl;
 		cout << Char27out(active_b3) << "active_b3" << endl;
-		g17b.Debug_If_Of_b3();
+		//g17b.Debug_If_Of_b3();
 	}
 
 	Do_miss1();
