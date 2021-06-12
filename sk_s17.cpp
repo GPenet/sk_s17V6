@@ -3,28 +3,28 @@
 #define SEARCH17SOL
 
 
-//#define DEFPHASE -3
+//#define DEFPHASE -4
 #ifdef DEFPHASE
 #endif
 
-//#define DEBUGKNOWN 
+//#define DEBUGKNOWN 0
 #ifdef DEBUGKNOWN
 #else
 #endif
 
-#define DEBUGONE 32
+//#define DEBUGONE 53
 #ifdef DEBUGONE
 #endif
 
-#define DEBUGINIT
+//#define DEBUGINIT
 #ifdef DEBUGINIT
 #endif
 
-#define DEBUGEXL
+//#define DEBUGEXL
 #ifdef DEBUGEXL
 #endif
 
-#define DEBUGL1L2 1
+//#define DEBUGL1L2 1
 #ifdef DEBUGL1L2
 #endif
 
@@ -36,10 +36,6 @@
 #ifdef DEBUCLEANB
 #endif
 
-#define DOGUASOP2
-#ifdef DOGUASOP2
-#else
-#endif
 
 /* program organisation
 	main is the standard frame including the basic brute force 
