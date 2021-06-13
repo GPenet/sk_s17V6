@@ -68,6 +68,7 @@ typedef unsigned __int64  uint64_t;
 #define _ftime64_s ftime
 #endif
 
+
 #ifndef __AVX2__
 #define _blsi_u32(v) ((v | (v - 1)) ^ (v - 1))
 #endif

@@ -85,8 +85,7 @@ void ZH2B::Init_2digits_banda(BF64  cellsbf) {
 	for (int i = 0; i < 9; i++)  FD[i] &= cells_unsolved |
 		zh2b_g.Digit_cell_Assigned_init[i];
 }
-//void ZH2B::EndInit_2digits_bandb(int fl, int ibandb) {
-//}
+
 /*
 extract from bands 1 2 and UAs bands1+2 all uas (uint64_t)
 having a chance to be a subset of a gua
@@ -277,16 +276,16 @@ void GEN_BANDES_12::GuaCollectMore() {
 	}
 	// try to add the ua to the file
 }
-
+/*
 int GEN_BANDES_12::Debug17(SGUA2 & w) {// check validity of guas
 	STD_B3 & myb3 = bands3[0];
 	if( myb3.guas.isguasocket2.Off_c(w.i_81)) return 0;
-	//this is a valid pair if not hit in band 3by the known 17 
-	//must be hit in bands 1-2 
+	//this is a valid pair if not hit in band 3by the known 17
+	//must be hit in bands 1-2
 	if (myb3.guas.ua_pair[w.i_81] & g17b.p17diag.bf.u32[2]) return 0;//hit in band 3
 	//cout << Char27out(myb3.guas.ua_pair[w.i_81]) << " i81=" << w.i_81 << endl;
 
-	for (uint32_t i = 0; i < w.nua; i++) {// exit false if not hit 
+	for (uint32_t i = 0; i < w.nua; i++) {// exit false if not hit
 		register uint64_t R = w.tua[i];
 		if (0)
 			cout << Char2Xout(R) << " cc=" << (R >> 59) << " i=" << i << endl;
@@ -295,9 +294,10 @@ int GEN_BANDES_12::Debug17(SGUA2 & w) {// check validity of guas
 		cout << Char2Xout(R) << " cc=" << (R >> 59) <<" i="<<i<< endl;
 		return 1;
 	}
-	return 0; 
-	
+	return 0;
+
 }
+*/
 
 
 void GEN_BANDES_12::GuaCollect(int fl,int diag) {//use revised gangster
@@ -671,7 +671,6 @@ next:// erase previous fill and look for next
 back:
 	if (--ii >= 0) goto next;
 }
-void Go_c17_91_go();
 void GEN_BANDES_12::ValidInitGang() {
 	for (int i = 0; i < 9; i++) {// init columns status
 		cold[i] = 0x1ff;
@@ -682,52 +681,19 @@ void GEN_BANDES_12::ValidInitGang() {
 }
 int GEN_BANDES_12::ValidBand2() {
 	myband2.InitBand2_3(it16_2, &zsol[27], pband2);
-	//_______________________ std process
-	if (modeb12 < 10) {
-		nband3 = 0;
-		//if (p_cpt2g[0]) return 1;//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<	
-		if ((nb12 >> 6) < skip) return 0;// here restart value, kept untouched if no band 3 found
-		{// print a restart point every 64 bands 1+2 seen
-			uint64_t w = genb12.nb12, w1 = w >> 6;
-			w &= 63;
-			if (w == 0) {
-				long tfin = GetTimeMillis();
-				cout << "next skip value to use=\t" << w1 << "\tmil=" << (tfin - sgo.tdeb) / 1000 << "\tnb2=" << p_cpt2g[0] << endl;
-			}
+	nband3 = 0;
+	if ((nb12 >> 6) < skip) return 0;// here restart value, kept untouched if no band 3 found
+	{// print a restart point every 64 bands 1+2 seen
+		uint64_t w = genb12.nb12, w1 = w >> 6;
+		w &= 63;
+		if (w == 0) {
+			long tfin = GetTimeMillis();
+			cout << "next skip value to use=\t" << w1 << "\tmil=" << (tfin - sgo.tdeb) / 1000 << "\tnb2=" << p_cpt2g[0] << endl;
 		}
-		ValidInitGang();// also called from existing 17 in test
-		if (sgo.vx[7]) {
-			if (sgo.vx[7] == i2t16) {
-				Find_band3B(0);
-			}
-		}
-		else Find_band3B();
-		//cout << "band12=" << nb12 << "\tnband3=" << nband3 << " it16_2="<< it16_2 << endl;
-		if ((nb12 >> 6) >= last)return 1;
-		return 0;
 	}
-	//______________________ testing options 
-	switch (modeb12) {
-	case 10: {// test ua collection
-		if (++p_cptg[0] > sgo.vx[1]) return 1;
-		cout << "deux bandes à tester" << endl;
-		Go_c17_91_go();
-		return 0;
-	}
-	case 11: {// enumeration test
-		for (int i = 0; i < 9; i++) {// init columns status
-			cold[i] = 0x1ff;
-			for (int j = 0; j < 6; j++)	cold[i] ^= 1 << grid0[i + 9 * j];
-		}
-		memcpy(gangcols, cold, sizeof gangcols);
-		Find_band3B(11);
-		if (nband3) {
-			p_cpt[0]++;
-			p_cpt[1] += nband3;
-		}
-		return 0;
-	}
-	}
+	ValidInitGang();// also called from existing 17 in test
+	Find_band3B();
+	if ((nb12 >> 6) >= last)return 1;
 	return 0;
 }
 void GEN_BANDES_12::Find_band3B(int m10) {
@@ -808,7 +774,6 @@ next:// erase previous fill and look for next
 	}
 back:
 	if (--ii >= 0) goto next;
-	if (m10 != 1)return;
 	if (nband3)		g17b.GoM10();// call the process for that entry
 }
 

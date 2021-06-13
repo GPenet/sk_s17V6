@@ -1,10 +1,3 @@
-//#define DODEBUG
-//#define DO2X2
-#define ZST6 800
-#define ZST5 500
-#define ZST4 300
-#define ZST3 50
-#define ZST2 5
 struct MINCOUNT {
 	uint32_t mini_bf1, mini_bf2, mini_bf3, mini_triplet,
 		critbf, pairs27;
@@ -32,16 +25,7 @@ struct MINCOUNT {
 		}
 		return cc;
 	}
-	void Status(const char * lib) {
-		cout << lib << "critical Status mincount =" << mincount << " minplus=" << minplus << endl;
-		cout << Char27out(critbf) << " critical bf" << endl;
-		cout << Char27out(pairs27) << " pairs 27" << endl;
-		cout << Char9out(mini_bf1) << "     minis bf1" << endl;
-		cout << Char9out(mini_bf2) << "     minis bf2" << endl;
-		cout << Char9out(mini_bf3) << "     minis bf3" << endl;
-		cout << Char9out(mini_triplet) << " mini triplets" << endl << endl;
 
-	}
 };
 struct BI2 {//Index 2 valid in band
 	uint64_t bf, // 2 cells in bit fiekd
@@ -60,18 +44,12 @@ struct VALIDB {//  valid band 1+2
 		nval = _popcnt64(bf) - 2;
 		memcpy(tval, tc2, sizeof tval);
 	}
-	int DebugFindKnown17();
-	void Print() {// debugging
-		cout << Char2Xout(bf) << " valid n=" << nval << endl;
-	}
+	
 };
 struct VALIDB64 {// minimal valid band no index
 	uint64_t bf; // 2 cells in bit fiekd
 	uint32_t tval[6]; // 0-6 cells in int mode
 	uint64_t nval;// n cells over the 2
-	void Print() { // debugging
-		cout << Char2Xout(bf) << " valid n=" << nval << endl;
-	}
 };
 struct CTR162 {// bit field 162 bits for guas2_3
 	uint64_t bf[3];
@@ -111,8 +89,6 @@ struct STD_B416 {
 	void InitBand2_3(int i16, char * ze, BANDMINLEX::PERM & p
 		, int iband = 1);
 
-
-	void PrintStatus();
 };
 struct STD_B1_2 :STD_B416 {
 	// row solution pattern in digit
@@ -125,7 +101,6 @@ struct STD_B1_2 :STD_B416 {
 	}
 	int ReviseG_triplet(int imini, int ip, STD_B1_2 * bb);
 	uint32_t GetMiniData(int index, uint32_t & bcells, STD_B1_2 *bb);
-	void PrintShortStatus();
 };
 struct STD_B3 :STD_B416 {// data specific to bands 3
 	BF128 tua128[1000], tua128_b2[1000];
@@ -140,7 +115,6 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 	}guas;
 	BF128 isguasocketc246;//all linked to a socket 2
 	CTR162 bf162b,bf162b46;// g2 g3  in 162 bits mode 
-
 	uint32_t ntua128,ntua128_b2;
 	int minirows_bf[9];
 	int triplet_perms[9][2][3];
@@ -181,7 +155,6 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 	int Clean0(); //first 256 guas 
 	int Cleanmore(); // all guas
 	inline void Insert2(uint32_t i81) {
-		//tua2_3[ntua2_3++] = guas.ua_pair[i81];
 		register uint32_t	bit = guas.ua2bit[i81];
 		smin.mini_bf3 |= smin.mini_bf2&bit;
 		smin.mini_bf2 |= smin.mini_bf1&bit;
@@ -190,10 +163,8 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 		smin.pairs27 |= guas.ua2pair27[i81];
 	}
 	inline void Insert3(uint32_t i81) {
-		//tua2_3[ntua2_3++] = guas.ua_triplet[i81];
 		smin.mini_triplet |= guas.ua3bit[i81];
 	}
-	void PrintB3Status();
 };
 
 struct BINDEXN {
@@ -212,12 +183,6 @@ struct INDEX_XY {
 		VALIDB64 * tvb;
 		uint32_t ntvb, sum_vb;
 	}titem[2];
-	void Debug() {
-		cout << Char2Xout(and_g) << "\tnand=" << _popcnt64(and_g) << endl;;
-		cout << Char2Xout(or_g) << "\tnor=" << _popcnt64(or_g) << endl;;
-		for (int i = 0; i < 2; i++)
-			cout << "\t" << titem[i].ntvb << ";" << titem[i].sum_vb;
-	}
 
 }index_xy_b1, index_xy_b2;
 
@@ -263,34 +228,6 @@ struct G17TMORE {// FIFO table of more for bands 1+2
 		while (--Rt > Rtl)if (!((*Rt) & V))return 1;
 		return 0;
 	}
-	void Print(int modegua) {
-		register uint64_t *Rt = &t[curt], *Rtl;
-	loop1:// form curt to 0
-		{
-			register uint64_t w = *Rt;
-			if (modegua)			cout << Char54out(w) << " " << (w >> 56) << endl;
-			else cout << Char2Xout(w) << endl;
-		}
-		if (--Rt >= t)goto loop1;
-		if (nt < maxt) return;
-
-		Rtl = &t[curt];
-		Rt = &t[maxt];
-		while (--Rt > Rtl) {
-			register uint64_t w = *Rt;
-			if (modegua)			cout << Char54out(w) << " " << (w >> 56) << endl;
-			else cout << Char2Xout(w) << endl;
-		}
-
-	}
-
-
-	void PrintUasDirect() {
-		for (int i = 0; i < nt; i++) {
-			register uint64_t w = t[i];
-			cout << Char2Xout(w) << endl;
-		}
-	}
 
 };
 struct MORE32 {// FIFO table of more for band b
@@ -324,86 +261,6 @@ struct MORE32 {// FIFO table of more for band b
 	}
 
 };
-struct MOREALL {// FIFO table of more for bands 1+2
-	BF128 ta[G17MORESIZE];
-	uint64_t  t[G17MORESIZE];
-	int nt, maxt, curt;
-	inline void Init() { maxt = G17MORESIZE; nt = 0; }
-	inline void Add(BF128 v) {//add a new more in FIFO 
-		if (nt < maxt) {// use next location
-			curt = nt;
-			ta[nt++] = v;
-		}
-		else {// replace the oldest
-			curt++;
-			if (curt == maxt)curt = 0;
-			ta[curt] = v;
-		}
-
-	}
-	inline int Check(uint64_t v) {// check oldest first
-		if (!nt) return 0;
-		register uint64_t V = v;
-		register BF128 *Rt = &ta[curt], *Rtl;
-	loop1:// form curt to 0
-		if (!(Rt->bf.u64[0] & V))return 1;
-		if (--Rt >= ta)goto loop1;
-		if (nt < maxt) return 0;
-		Rtl = &ta[curt];
-		Rt = &ta[maxt];
-		while (--Rt > Rtl)if (!(Rt->bf.u64[0] & V))return 1;
-		return 0;
-	}
-	void PrintUasDirect() {
-		for (int i = 0; i < nt; i++) {
-			BF128 wa = ta[i];
-			cout << Char27out(wa.bf.u32[2]) << "\t";
-			cout << Char2Xout(wa.bf.u64[0]) << endl;
-		}
-	}
-};
-
-struct GVCELLS {// vectors cells for guas
-	BF128 v21[81][54]; // first 128 uas GUA2
-	BF128 v31[81][54]; // first 128 uas GUA3
-}gvcells;
-struct GVSTEPS {// base vectors start,loopb1,loopb2
-	BF128 v21[81];
-	BF128 v31[81];
-}gvs_start, gvs_b1, gvs_b2;
-struct G4TABLE {
-	struct TI {
-		uint64_t ua64;
-		uint32_t i81_1, i81_2;
-	}ti[2000];;
-	BF128 tua4[2000];
-	uint32_t ntua4;
-	inline void Init() { ntua4 = 0; }
-	inline void Add(TI & a) {
-		if (ntua4 < 2000)ti[ntua4++] = a;
-	}
-	void Shrink(G4TABLE & o, uint64_t bf) {
-		ntua4 = 0;
-		for (uint32_t i = 0; i < o.ntua4; i++)
-			if (!(bf & o.tua4[i].bf.u64[0]))
-				tua4[ntua4++] = o.tua4[i];
-	}
-	void Catch(uint64_t bf, uint32_t * td, uint32_t & ntd) {
-		for (uint32_t i = 0; i < ntua4; i++)
-			if (!(bf & tua4[i].bf.u64[0]))
-				td[ntd++] = tua4[i].bf.u32[2];
-	}
-	void Debug(int nodet = 1) {
-		cout << "g4t_.. status ntua4=" << ntua4 << endl;
-		if (nodet)return;
-		for (uint32_t i = 0; i < ntua4; i++) {
-			cout << Char27out(tua4[i].bf.u32[2]) << "\t";
-			cout << Char2Xout(tua4[i].bf.u64[0]) << " ";
-			cout << _popcnt64(tua4[i].bf.u64[0]) << endl;
-		}
-	}
-
-}g4t_start, g4t_b1, g4t_b2;
 
 //================== UA collector 2 bands 
 
@@ -452,9 +309,9 @@ void CollectMore2minirows();
 void ProcessSocket2(int i81);
 int DebugUas();
 };
-// gaus table size 64 but 30 as initial limit
+// guas table size 64 but SIZETGUA as initial limit
 #define SIZETGUA 35
-//#define GUAREDSIZE 100
+
 struct GEN_BANDES_12 {// encapsulating global data 
 	STD_B3 bands3[512];
 	int modeb12, go_back, diagmore, diagbug, ip20,
@@ -619,10 +476,9 @@ type
 0 one of the 81 gangster pairs
 1 one of the 81 gangster triplets
 
-for a given band we can have a BF128
-UA produced in band 3 process not gua2 gua3
+for a given band we can have in BF128 pattern
+a  UA produced in band 3 process not gua2 gua3
 a stack ua for the band 
-could be also expansion to 6 cells of the type 0
 
 in bit fields "active" 
 all 81 types are encoded in 3x27 mode in a 128 bits field
@@ -630,22 +486,14 @@ all 81 types are encoded in 3x27 mode in a 128 bits field
 
 
 At the start, a working GUA struct is open
-if less than 23uas are collected, the correponding uas 
- are stored in a separate table of GUAR.
 
-for each 2 clues step in band 1 or band 2 
-the GUARs table is first reduced to still active GUARs
-then the GUAs are reduced and if the count is <3 
- the result is sent in the GUAR table
+for each  step 
+all GUAs tables are first reduced to still active GUAs
+then the guas are sorted by size and stored in a table
 
-
-the search is done directly in the GUAs GUARs tables, 
-but an index of active gangsters is setup at each step.
-
-For each bands 1+2 passing the filters, 
- the final status of the gangsters sockets is built in the same way
- for a GUA, the first not hit forces the ganster true,
- for a GUAR, the same happens, but the process continues with the next entry
+vectors are built to apply later xy clues
+in a first pass, only the 256 first uas will be checked
+this is usually enough to pass the limit count in band 3
 
 */
 
@@ -665,35 +513,8 @@ struct GUA {
 	inline void Init(GUA & g) {
 		nua = 0; type = g.type; i81 = g.i81; 
 	}
-	void Debug(int nodet=1) {
-		cout << "gua type=" << type << " i81=" 	<< i81
-			<< "\tnua=" << nua << endl;
-		if (nodet) return;
-		for (uint32_t i = 0; i < nua; i++) {
-			cout << "\t" << Char2Xout(tua[i]) 
-				<<" "<< _popcnt64(tua[i]& BIT_SET_2X)
-				<< " " << i << endl;
-		}
-	}
-}guaw;
-struct GUARx {
-	uint64_t ua;
-	uint32_t type, i81;
-	void Init(GUA & o) {
-		type = o.type;
-		i81 = o.i81;
-	}
-	inline void Enter(uint64_t eua, uint32_t etype, uint32_t ei81) {
-		i81 = ei81; type = etype; ua = eua;
-	}
-	void Debug() {
-		cout << "gr t=" << type << " i81=" << i81
-			 << "\t" << Char2Xout(ua)
-			<<" "<<_popcnt64(ua &BIT_SET_2X)<< endl;
-		
-	}
-}guarw;
 
+}guaw;
 struct TGUAS {
 	struct INDEX_TO_GUA {
 		int g2[81], g3[81];
@@ -705,12 +526,9 @@ struct TGUAS {
 	}ix_start;
 	struct CTRL {// check for redundancy
 		BF128 g2, g3;
-		void Debug() {	g2.Print("g2");	g3.Print("g3");	}
-	}ctrla;
-
+	}ctrlax;
 
 	GUA tgua_start[162];// max is 81+81
-	//GUAR tguar_start[2000];// , tguar_b1[2000], tguar_b2[4096]; // 4096=128*32
 	uint32_t ntgua_start, 	nvect;
 
 	uint32_t  tvti[4096]; // index 0_161 of the vector item
@@ -728,23 +546,27 @@ struct TGUAS {
 		tgua_start[ntgua_start++] = guaw;
 	}
 	inline void SetVect54(uint64_t ua, uint32_t i) {
-		long long * w = (long long*)&vect[0].bf.u64[0];
-		_bittestandset64(w, i);  // set the bit to 1
+		uint64_t * vw = &vect[0].bf.u64[0];
+		uint64_t ibloc = i >> 6, ir = i - 64 * ibloc,
+			bit = (uint64_t)1 << ir, nbit=~ bit;
+		vw[ibloc] |= bit;
 		register uint64_t W = ua ;
 		uint32_t cc54;
 		while (bitscanforward64(cc54, W)) {// look for  possible cells
 			W ^= (uint64_t)1 << cc54;// clear bit
-			tguas.cellsv[cc54][0].Clear(i);
+			cellsv[cc54][0].bf.u64[ibloc]&= nbit;
 		}
 	}
 	inline void SetVect(uint64_t ua, uint32_t i) {
-		long long * w = (long long*)&vect[0].bf.u64[0];
-		_bittestandset64(w, i);  // set the bit to 1
+		uint64_t * vw = &vect[0].bf.u64[0];
+		uint64_t ibloc = i >> 6, ir = i - 64 * ibloc,
+			bit = (uint64_t)1 << ir, nbit = ~bit;
+		vw[ibloc] |= bit;
 		register uint64_t W = ua & BIT_SET_2X;
 		uint32_t cc64;
 		while (bitscanforward64(cc64, W)) {// look for  possible cells
 			W ^= (uint64_t)1 << cc64;// clear bit
-			tguas.cellsv[From_128_To_81[cc64]][0].Clear(i);
+			cellsv[From_128_To_81[cc64]][0].bf.u64[ibloc] &= nbit;
 		}
 	}
 	inline void AddVect(uint64_t eua, uint32_t etype, uint32_t ei81) {
@@ -756,78 +578,9 @@ struct TGUAS {
 		return (nvect + 127) / 128;
 	}
 	void ApplyB2();
-	void ApplyXY(uint64_t bf);
 	void Apply128(uint32_t i);
-	void ApplyFirst128();
 	void ApplyFirst256();
-
-	void DebugStart(int nodet = 1) {
-		cout << "gua tables n=" << ntgua_start << endl;
-		for (uint32_t i = 0; i < ntgua_start; i++)
-			tgua_start[i].Debug(nodet);
-	}
-
-
-	void Debugxy() {	ctrla.Debug();	}
 }tguas;
-
-/*
-struct GUAN {// one occurrence of the active guan
-	uint64_t *tua, killer;
-	uint32_t colbf, digsbf, ncol, // 2-4 cols
-		nua, nfree;
-	int i81;// i81 or pattern (if 4 columns)
-	void Enter(uint64_t *t, uint32_t n, uint32_t cbf,
-		int32_t dbf, uint32_t ind) {
-		i81 = ind;// index 0-80 if gua2 gua3
-		tua = t; nua = n; colbf = cbf; digsbf = dbf;
-		killer = BIT_SET_2X;
-		for (uint32_t i = 0; i < nua; i++)killer &= tua[i];
-		ncol = _popcnt32(colbf);
-	}
-	void Debug1Guan(int i, int all = 0) {
-		cout << Char2Xout(killer);
-		cout << "kill  i=" << i << "\tcols" << Char9out(colbf);
-		cout << "\tdigs" << Char9out(digsbf) << " ncol=" << ncol
-			<< " nua=" << nua << " i81=" << i81
-			<< endl;
-		if (all) {
-			for (uint32_t i = 0; i < nua; i++)
-				cout << Char2Xout(tua[i]) << endl;
-		}
-	}
-
-}guanw;
-
-
-struct TU_GUAN {// GUAN process (used GUA all kinds)
-	GUAN tguan[256], guanw, tguanb1[160],g2[160];
-	uint64_t  guabuf[15000], *pguabuf;
-	uint32_t //i81socket2[80], i81socket3[80],
-		tsockets2[80], tsockets3[80],// tsockets4[80],
-		ntsockets2, ntsockets3, //ntsockets4,
-		ntsockets2_2, ntsockets3_2;// , ntsockets4_2;
-	//______________________ valid handler
-	//uint64_t vv2, vv3, vv2_2, vv3_2;
-	uint32_t nguan, nguanb1, nguastepb2, ng2 ;
-	void AddGuan(uint64_t *t, uint32_t n, uint32_t cbf,
-		int32_t dbf, uint32_t ind) {
-		if (nguan < 256) {
-			pguabuf = &pguabuf[n];// lock space
-			tguan[nguan++].Enter(t, n, cbf, dbf, ind);
-		}
-		//tguan[nguan - 1].Debug1Guan(nguan - 1);
-	}
-
-	void Init(){
-		pguabuf = guabuf;// reinit gua buffer use
-		nguan = 0;//and guan table
-	}
-
-
-};*/
-
-
 
 struct G17B3HANDLER {
 	MINCOUNT smin;
@@ -882,20 +635,11 @@ struct ZS64 {// final loop 64 bits
 struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	G17B();// initial tasks all commands
 
-	BF128 p17diag;// known 17 pattern for tests
-	int b3lim, debug17,debug17_check,
-		diag, diagbug,debugb3, aigstop, aigstopxy,
-		iretb1,doloopnotok,
-		npuz, a_17_found_here;
+	//BF128 p17diag;// known 17 pattern for tests
+	int b3lim,  aigstop, aigstopxy,
+		iretb1,doloopnotok,		npuz, a_17_found_here;
 	uint32_t	iband1,iband2, step1count;
 	G17B3HANDLER hh0;
-	//______sockets common to  all bands 3  
-	BF128 isguasocket2all, isguasocket3all;
-	BF128 socks2x2;// sockets 2x2  4 cells  2 digits in band3
-	int ts2x2[81], nts2x2; // storing active sockets 2x2
-	uint64_t tuas2x2[81]; // first ua (usually one) for an active socket 2x2
-	int ts2x2_clean[81], nts2x2_clean; // same status for a given XY 
-
 	//====== data for band expansion
 	uint32_t nexp, bnua;
 	uint64_t btua[300],start_active, b1cpt[8], b2cpt[8],b1cptdiag;
@@ -904,15 +648,10 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	uint32_t nmybi2t, nmyokt,nbi2_1,nbi2_2,
 		nvb1,nvb1steps[10],
 		nzs1_6,nzs2_6, nzs1_5, nzs2_5;
-	//======= status after step 2 in band 2 then 2 uas in band 1
-	uint64_t tusb1[2000], tusb2_12[1000], tusb2[1000], temptyb1[500];
-	uint32_t ntusb1, ntusb2, ntusb2_12, nemptyb1;
-	VALIDB64 * tvb1go;// part A or part B
-	uint32_t ntvb1go;
-	uint64_t  temptyb2[500];
-	uint32_t  ntua_128, ntua_256, nemptyb2;
+	//======= status after band 1 and step
+	uint64_t tusb1[2000];
+	uint32_t ntusb1,ntvb1go;
 	uint64_t fb1,acb1, fb2, fb12, acb2a,  acb2, acb12;
-
 
 	//_____ data and functions of the external loop
 
@@ -922,27 +661,6 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 		uint64_t noxyes;
 		uint32_t bfx, tbfy[20], ntbfy, mode, ratio;
 		void Init(uint32_t bf, int mod) { bfx = bf; ntbfy = 0; mode = mod; }
-		void Debug() {
-			uint32_t orw = 0;
-			if (mode == 1) {
-				cout << Char27out(bfx) << " bfx b1 ntbfy= " << ntbfy << endl;
-				for (uint32_t i1 = 0; i1 < ntbfy; i1++) {
-					orw |= tbfy[i1];
-					cout << "\t\t" << Char27out(tbfy[i1]) << " bfy" << endl;
-				}
-				cout << "\t\t" << Char27out(orw) << " orw" << endl;
-			}
-			else {
-				cout << "\t\t" << Char27out(bfx) << " bfx b2 ntbfy= " << ntbfy << endl;
-				for (uint32_t i1 = 0; i1 < ntbfy; i1++) {
-					cout << Char27out(tbfy[i1]) << " bfy" << endl;
-					orw |= tbfy[i1];
-				}
-				cout << Char27out(orw) << " orw" << endl;
-
-			}
-
-		}
 	}extl1[10], extl2[10], extlw, extlr;
 	uint32_t nextl1, nextl2;
 	uint64_t n_yesb1, n_yesb2, n_nob1, n_nob2,minratio;
@@ -956,13 +674,9 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void Go2b_Ext_Loop(uint64_t activeloop, uint32_t mode2);
 
 	//___ process sub lots 
-	uint32_t kn_ir1, kn_ir2; // to ckeck known
 	int G3_SplitBi2( BINDEXN & binw, uint32_t ibi2,
 		INDEX_XY & ixyw, VALIDB64 * pvb);
-	
 	void Go3(BINDEXN & bin1, BINDEXN & bin2);
-
-
 
 	//============ vectors 64 128 bits 
 	uint64_t v64uas, vc64[54];
@@ -988,14 +702,13 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	//============  go band3
 	STD_B3* myband3;
 	uint32_t fstk, andmiss1, noutmiss1, wactive0;
-	uint32_t free1, free2, free3;
+	//uint32_t free1x, free2, free3;
 	uint32_t tua128_b3[1000], ntua128_b3;
 	BF128 wg46;
 	uint32_t cur_ib;
-	uint32_t tcluesb12[20], ncluesb3x;
 	uint32_t   nmiss;
-	uint32_t uasb3_1[2000], uasb3_2[2000], uas_in[2000],
-		nuasb3_1, nuasb3_2, nuas_in, b3_andout;
+	uint32_t uasb3_1[2000], uasb3_2[2000],
+		nuasb3_1, nuasb3_2, b3_andout;
 	MINCOUNT smin;
 	MORE32 moreuas_b3, moreuas_b3_small;
 
@@ -1010,7 +723,6 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	
 	//=====================process for a new band 2 / set of bands 3
 	void GoM10();// standard entry
-	void GoM10Known();// entry for a known 17
 	void GoM10Uas();// collect uas guas
 	void StackUas();
 	void ExpandB1();
@@ -1037,7 +749,6 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 		stack_count.u16[C_stack[cell]]++;
 		t[n++] = cell;
 	}
-	int Is_B12_Not_Unique();
 	void NewUaB12();
 	void DebugAdd12();
 	void GoB3(STD_B3 & b);
@@ -1052,27 +763,4 @@ struct G17B {// hosting the search in 6 6 5 mode combining bands solutions
 	void NewUaB3();
 	void NewUaB3_g2(uint32_t i81, uint64_t ua12);
 	void NewUaB3_g3(uint32_t i81, uint64_t ua12);
-
-	void Debug_If_Of_b3();
-
-
-
-
-	//================ debugging code
-	inline uint32_t k17x(int ix) {	return p17diag.bf.u32[ix];	}
-	uint64_t DebugFindKnown17_valids_2bands();
-	void Debug_b1b2cpt();
-	void DebugGetPuz(const char * p) {
-		p17diag.SetAll_0();
-		for (int i = 0; i < 81; i++)
-			if (p[i] != '.')p17diag.Set_c(i);
-
-		cout <<"this is a "
-			<<_popcnt32(p17diag.bf.u32[0])
-			<< _popcnt32(p17diag.bf.u32[1])
-			<< _popcnt32(p17diag.bf.u32[2]) 
-			<<" pattern for the expected puzzle"<< endl;
-	}
-	void GodebugInit(int mode);
-	int GodebugCheckUas(const char * lib);
 };

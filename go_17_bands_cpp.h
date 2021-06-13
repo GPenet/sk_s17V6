@@ -69,19 +69,6 @@ void STD_B416::InitBand2_3(int i16, char * ze, BANDMINLEX::PERM & p
 
 	SetGangster();
 }
-void STD_B416::PrintStatus() {
-	cout << "band status i=" << i416 << "\tstart=" << dband<<endl<<"map ";
-	for (int i = 0; i < 27; i++)cout << map[i] << " ";
-	cout <<endl;
-	cout << band << endl<<"gangster status"<<endl;;
-	zh1b_g.GetBand(band0, tua);// set zhone_i
-	zhone[0].InitOne_std_band();
-	zh1b_g.ndigits = 9;
-	zhone[0].ImageCandidats(); // gangster status
-	cout << "UAs table" << endl;
-	for (uint32_t i = 0; i < nua; i++)
-		cout << Char27out(tua[i]) << endl;
-}
 void STD_B1_2::FillMiniDigsMiniPairs(STD_B1_2 & bb) {
 	if (0) {
 		cout << "gangster other band" << oct << endl;
@@ -156,13 +143,6 @@ uint32_t  STD_B1_2::GetMiniData(int index, uint32_t & bcells, STD_B1_2 *bb) {
 	bb->revised_g[dcol + pcol[0]] ^= digs;
 	bb->revised_g[dcol + pcol[1]] ^= digs;
 	return digs;
-}
-
-
-void STD_B1_2::PrintShortStatus() {
-	cout  << band << "\t\tband main data i0-415="<<i416 << endl;
-	cout << "nua    \t" << nua << endl;
-
 }
 
 void STD_B3::InitBand3(int i16, char * ze, BANDMINLEX::PERM & p) {
@@ -285,30 +265,6 @@ int STD_B3::IsGua3(int i81) {
 	return 0;
 }
 
-void STD_B3::PrintB3Status() {
-	cout << "band3 status" << endl;
-	for (int i = 0, ij = 0; i < 3; i++) {
-		for (int j = 0; j < 9; j++, ij++) cout << band0[ij] + 1;
-		cout << endl;
-	}
-	cout << endl<<"gua2 gua4 gua6s" << endl;
-	for (int i = 0; i < 81; i++){
-		int w = guas.ua_pair[i];
-		if (w) cout << Char27out(w) << " i81=" << i << endl;
-	}
-	cout  << "gua3s" << endl;
-	for (int i = 0; i < 81; i++) {
-		int w = guas.ua_triplet[i];
-		if (w) cout << Char27out(w) << " i81=" << i << endl;
-	}
-	char ws[129];
-	const char* w3 = "123456789...---...123456789";
-	cout << w3 << w3 << w3 << endl;;
-	cout << guas.isguasocket2.String128(ws) << " sock2" << endl;
-	cout << guas.isguasocket2_46.String128(ws) << " sock2_46" << endl;
-	cout << guas.isguasocket3.String128(ws) << " sock3" << endl;
-}
-
 //==================== sockets UA2s UA3s control
 
 int GENUAS_B12::Initgen() {// buil start myband1 myband2
@@ -369,18 +325,6 @@ int GENUAS_B12::Initgen() {// buil start myband1 myband2
 	//if (g17b.debug17&&g17b.GodebugCheckUas(" all us")) return 1;
 	//DebugUas();
 	return 0; // ok
-}
-int GENUAS_B12::DebugUas() {
-	cout << "  debug uas" << endl;
-
-	for (uint32_t i = 0; i < nua; i++) {
-		uint64_t w = tua[i];
-		int cc = (w >> 59);
-		//if(cc==13)
-		cout << Char2Xout(w) << " " << cc << " i=" << i << endl;
-	}
-	cout << " end debug uas" << endl;
-	return 0;
 }
 
 void GENUAS_B12::BuildFloorsAndCollectOlds(int fl) {

@@ -3,39 +3,6 @@
 #define SEARCH17SOL
 
 
-//#define DEFPHASE -4
-#ifdef DEFPHASE
-#endif
-
-//#define DEBUGKNOWN 0
-#ifdef DEBUGKNOWN
-#else
-#endif
-
-//#define DEBUGONE 53
-#ifdef DEBUGONE
-#endif
-
-//#define DEBUGINIT
-#ifdef DEBUGINIT
-#endif
-
-//#define DEBUGEXL
-#ifdef DEBUGEXL
-#endif
-
-//#define DEBUGL1L2 1
-#ifdef DEBUGL1L2
-#endif
-
-//#define DEBUGSTEP 1
-#ifdef DEBUGSTEP
-#endif
-
-//#define DEBUCLEANB 160656673
-#ifdef DEBUCLEANB
-#endif
-
 
 /* program organisation
 	main is the standard frame including the basic brute force 
@@ -120,48 +87,23 @@ BI2 bi2_b1w[250], bi2_b1yes[250];
 BI2 bi2_b2w[250], bi2_b2yes[250];
 BI2 bi2_b1w2[250], bi2_b1yes2[250];
 BI2 bi2_b2w2[250], bi2_b2yes2[250];
-#define MAXEXP7 1200000
+
 VALIDB vab1w[MAX_56], vab1yes[MAX_56];
 VALIDB vab2w[MAX_56], vab2yes[MAX_56];
 VALIDB vab1w2[MAX_56], vab1yes2[MAX_56];
 VALIDB vab2w2[MAX_56], vab2yes2[MAX_56];
 
 VALIDB64 vab64b1[MAX_56], vab64b2[MAX_56];
-/*
-
-*/
-
-
-struct V3B128 {// for one bloc of 128 valid vand 3
-	BF128 base;
-	BF128 sockets [MAXSOCKB3];
-	BF128 stacks[3][7];
-};
-struct VECTORBAND3 {// maximum of 1858 blocs of 128
-	V3B128 b128[1858];
-};
-
-VECTORBAND3 tvectorband3[256];
-
-
-uint32_t val3s[256][MAXN6];// expand up to 256 B3
 
 GINT64 tempXY[30000];// limit chunkx * chunky here 100*200=20000
-uint64_t valid_b12[30000];// in Clear tempxy
 
-
-
-
-uint64_t p_cptg[40], p_cpt1g[20], p_cpt2g[60];
-uint64_t p_cpt[40], p_cpt1[20];
+uint64_t p_cpt[40], p_cptg[40], p_cpt2g[60];
 
 
 
 #include "go_17_bands_cpp.h"  
-
 #include "go_17_genb12_cpp.h"     
 #include "go_17sol_bs_cpp.h"     
-//#include "go_17sol_zx_cpp.h"  
 #include "go_17sol_commands_cpp.h"
 
 
@@ -187,22 +129,7 @@ void Go_0() {
 		}
 	}
 	cerr << "running command " << sgo.command << endl;
-	switch (sgo.command) {
-	case 0: Go_c17_00(); break; // search one band1
-	case 9: Go_c17_09(); break; // search one band1 locate b2 b3
-	case 10: Go_c17_10(); break; // search known 17s 
-	case 11: Go_c17_11(); break; // split knwon 17s p2
-	case 12: Go_c17_12(); break; // anal diag 665
-
-	case 15: Go_c17_15(); break; // split knwon 17s 665 and others
-	case 16: Go_c17_16(); break; // add solution+bands index
-
-
-	case 80: Go_c17_80(); break; // enumeration test 
-	case 90: Go_c17_90(); break; // regressive test uas one band	
-	case 91: Go_c17_91(); break; // test uas collector 2 bands
-	case 92: Go_c17_92(); break;// regressive test uas 5 6  expand
-	}
-	cerr << "go_0 return" << endl;
+	if(!sgo.command) Go_c17_00();
+	else cerr << "go_0 return" << endl;
 }
 
