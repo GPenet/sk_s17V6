@@ -18,7 +18,7 @@ const char * libs_c17_00_cpt2g[60] = {
 	"11 miss 1",//11
 	"12 miss 2",//12
 	"13 expand",//13
-	"14 ",//14
+	"14 miss 2 expand",//14
 	"15 3A nb ok",//15
 	"16 b2 minplus 5",//16
 	"17 3A blocs nb3",//17

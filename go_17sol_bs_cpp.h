@@ -1472,8 +1472,14 @@ void G17B::CleanAll() {
 				if (genb12.bands3[ib3].Cleanmore())
 					tvb3[nvb3++] = ib3;
 			}
-		}
 		if (!nvb3) continue;
+		}
+		else {// mincount was done in a temporary place
+			for (uint32_t iw = 0; iw < nvb3; iw++) {
+				uint32_t ib3 = tvb3[iw];
+				genb12.bands3[ib3].smin.SetMincount();
+			}
+		}
 		p_cpt2g[47]++;
 		p_cpt2g[53] += nvb3;
 
@@ -1529,7 +1535,7 @@ int STD_B3::Clean0() {// critical code first 256 guas
 	sm.SetMincount();
 
 	if (sm.mincount > 6)return 0;
-	stack_count.u64 = g17b.stack_count.u64 + smin.Count_per_stack().u64;
+	stack_count.u64 = g17b.stack_count.u64 + sm.Count_per_stack().u64;
 	if (stack_count.u16[0] > 6 || stack_count.u16[1] > 6 ||
 		stack_count.u16[2] > 6) return 0; // not ok
 	return 1;
@@ -1734,7 +1740,7 @@ void G17B::GoB3_4() {
 		else {	GoB3_4Expand();		return;	}
 	}
 	// 2 out field is possible assign first stacks locked 
-	p_cpt2g[11]++;
+	p_cpt2g[12]++;
 	hh0.GoMiss2Init((*myband3));
 	// start with the smallest ua next will be "and" of remaining uas
 	uint32_t  uamin = uasb3_2[0];
@@ -1748,6 +1754,7 @@ void G17B::GoB3_4() {
 	hh0.GoMiss2((*myband3), uamin);
 }
 void G17B::GoB3_4Expand() {
+	p_cpt2g[14]++;
 	memcpy(&uasb3_1[nuasb3_1], uasb3_2, nuasb3_2 * sizeof uasb3_1[0]);
 	nuasb3_1 += nuasb3_2;
 	ExpandB3();
