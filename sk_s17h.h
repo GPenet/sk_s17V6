@@ -120,7 +120,7 @@ struct STD_B3 :STD_B416 {// data specific to bands 3
 	int triplet_perms[9][2][3];
 	uint32_t i_27_to_81[27], i_9_to_81[9]; //band i81 for guas guas3
 	//_______________ handling mincount
-	MINCOUNT smin;
+	MINCOUNT smin, sminr;
 	GINT64  stack_count;
 
 	//_______________________
@@ -307,7 +307,6 @@ void CollectMore2minirows();
 //_____________________ functions collect UA2s UAs3 socket 
 
 void ProcessSocket2(int i81);
-int DebugUas();
 };
 // guas table size 64 but SIZETGUA as initial limit
 #define SIZETGUA 35
@@ -515,6 +514,29 @@ struct GUA {
 	}
 
 }guaw;
+struct TVG64 {// gua vector for 64 bits
+	uint64_t v, cells[54], ti162[64];
+	inline void SetVect54(uint64_t ua, uint32_t i64, uint32_t i162) {
+		register uint64_t 	nbit, W = ua;;
+		if (!i64) {//new bloc to create
+			v = 1;
+			nbit = ~1;
+			memset(cells, 255, sizeof cells);
+		}
+		else {
+			register uint64_t bit = (uint64_t)1 << i64;
+			v |= bit;
+			nbit = ~bit;
+		}
+		ti162[i64] = i162;
+		register uint32_t cc54;
+		while (bitscanforward64(cc54, W)) {// look for  possible cells
+			W ^= (uint64_t)1 << cc54;// clear bit
+			cells[cc54] &= nbit;
+		}
+	}
+
+}tvg64[64];// designed for 64*64 = 4096 uas
 struct TGUAS {
 	struct INDEX_TO_GUA {
 		int g2[81], g3[81];
@@ -529,11 +551,7 @@ struct TGUAS {
 	}ctrlax;
 
 	GUA tgua_start[162];// max is 81+81
-	uint32_t ntgua_start, 	nvect;
-
-	uint32_t  tvti[4096]; // index 0_161 of the vector item
-	BF128 vect[32], cellsv[54][32],vect_b2[32], vect_xy[32],
-		cur_vect;
+	uint32_t ntgua_start, 	nvect, nguasb2, nb64_1;
 	void InitStart() {
 		memset(&ix_start, 255, sizeof ix_start);
 		ntgua_start = 0;
@@ -545,41 +563,22 @@ struct TGUAS {
 		ix_start.Set(ntgua_start, g);
 		tgua_start[ntgua_start++] = guaw;
 	}
-	inline void SetVect54(uint64_t ua, uint32_t i) {
-		uint64_t * vw = &vect[0].bf.u64[0];
-		uint64_t ibloc = i >> 6, ir = i - 64 * ibloc,
-			bit = (uint64_t)1 << ir, nbit=~ bit;
-		vw[ibloc] |= bit;
-		register uint64_t W = ua ;
-		uint32_t cc54;
-		while (bitscanforward64(cc54, W)) {// look for  possible cells
-			W ^= (uint64_t)1 << cc54;// clear bit
-			cellsv[cc54][0].bf.u64[ibloc]&= nbit;
-		}
+	inline void AddVect54(uint64_t ua, uint32_t i162) {
+		if (nvect > 2000)return;// the limit is 4096
+		uint32_t ibloc = nvect >> 6, ir = nvect - 64 * ibloc;
+		tvg64[ibloc].SetVect54(ua, ir, i162);
+		nvect++;
 	}
-	inline void SetVect(uint64_t ua, uint32_t i) {
-		uint64_t * vw = &vect[0].bf.u64[0];
-		uint64_t ibloc = i >> 6, ir = i - 64 * ibloc,
-			bit = (uint64_t)1 << ir, nbit = ~bit;
-		vw[ibloc] |= bit;
-		register uint64_t W = ua & BIT_SET_2X;
-		uint32_t cc64;
-		while (bitscanforward64(cc64, W)) {// look for  possible cells
-			W ^= (uint64_t)1 << cc64;// clear bit
-			cellsv[From_128_To_81[cc64]][0].bf.u64[ibloc] &= nbit;
-		}
-	}
-	inline void AddVect(uint64_t eua, uint32_t etype, uint32_t ei81) {
-		if (nvect > 4090) return; // limit for vectors is 4096
-		SetVect(eua, nvect);
-		tvti[nvect++] = ei81+81* etype;
-	}
-	inline uint32_t Get_nblocs128() {
-		return (nvect + 127) / 128;
+	inline void AddVect(uint64_t ua, uint32_t etype, uint32_t ei81) {
+		if (nvect > 4000) return; // limit for vectors is 4096
+
+								  //switch to ua54
+		uint64_t Ua1 = ua & BIT_SET_27, Ua2 = ua & BIT_SET_B2;
+		AddVect54(Ua1 | (Ua2 >> 5), ei81 + 81 * etype);
 	}
 	void ApplyB2();
-	void Apply128(uint32_t i);
-	void ApplyFirst256();
+	void ApplyFirst384();
+	void ApplyMore();
 }tguas;
 
 struct G17B3HANDLER {

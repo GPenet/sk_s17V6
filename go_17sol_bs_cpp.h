@@ -1227,6 +1227,7 @@ int G17B::Apply_Band2_Step() {// prepare the main loop
 void TGUAS::ApplyB2() {
 	// relay table per size
 	uint32_t ntt[21]; // count for tt
+	nguasb2 = 0;
 	BF128 tt[21][500];// guas 54 ua12 plus code 0_161 for the gangster
 	memset(ntt, 0, sizeof ntt);
 
@@ -1243,94 +1244,73 @@ void TGUAS::ApplyB2() {
 			uint64_t cc = _popcnt64(Ua);
 			guaw.Adduacheck(Ua | (cc << 59)); // no redundancy
 		}
-		// split per size in 54 + index 0_161 mode
-		BF128 w;
-		w.bf.u64[1] = wg.i81 + 81 * wg.type;
-		for (uint32_t j = 0; j < guaw.nua; j++) {
-			register uint64_t Ua = guaw.tua[j],
-				cc = Ua >> 59,
-				Ua1 = Ua & BIT_SET_27,
-				Ua2 = Ua & BIT_SET_B2;
-			if (cc > 20) continue; // should not be
-			w.bf.u64[0] = Ua1 | (Ua2 >> 5);
+		if (guaw.nua) {
+			nguasb2++;
+			// split per size in 54 + index 0_161 mode
+			BF128 w;
+			w.bf.u64[1] = wg.i81 + 81 * wg.type;
+			for (uint32_t j = 0; j < guaw.nua; j++) {
+				register uint64_t Ua = guaw.tua[j],
+					cc = Ua >> 59,
+					Ua1 = Ua & BIT_SET_27,
+					Ua2 = Ua & BIT_SET_B2;
+				if (cc > 16) continue; // should not be
+				w.bf.u64[0] = Ua1 | (Ua2 >> 5);
 
-			tt[cc][ntt[cc]++] = w;
+				tt[cc][ntt[cc]++] = w;
+			}
 		}
 	}
+
+	nb64_1 = ((nguasb2 * 4) >> 6) + 1;
 	//_____________ create vectors
-	memset(cellsv, 255, sizeof cellsv);
-	memset(vect, 0, sizeof vect);
 	nvect = 0;
-	for (uint32_t i = 0; i < 21; i++) {
+	for (uint32_t i = 0; i <= 16; i++) {
 		uint32_t n = ntt[i];
 		BF128 * tw = tt[i];
 		for (uint32_t j = 0; j < n; j++) {
-			BF128 w = tw[j]; 
-			SetVect54(w.bf.u64[0],nvect);
-			tvti[nvect++] = w.bf.u32[2];
+			BF128 w = tw[j];
+			AddVect54(w.bf.u64[0], w.bf.u32[2]);
+			if (nvect >= 784) break;
+		}
+		if (nvect >= 784) break;
+	}
+}
+void TGUAS::ApplyFirst384() {
+	memset(&bf162all, 0, sizeof bf162all);
+	for (uint32_t iv = 0; iv < nb64_1; iv++) {
+		TVG64 &vv = tvg64[iv];
+		register uint64_t V = vv.v;
+		for (int j = 0; j < g17b.nclues; j++)
+			V &= vv.cells[g17b.tcluesxy[j]];
+		register uint32_t cc64;
+		while (bitscanforward64(cc64, V)) {
+			V ^= (uint64_t)1 << cc64;// clear bit
+			uint64_t i = vv.ti162[cc64], ibloc = i >> 6,
+				bit = (uint64_t)1 << (i - 64 * ibloc);
+			bf162all.bf[ibloc] |= bit;
 		}
 	}
 }
+void TGUAS::ApplyMore() {
+	uint32_t nmore = (nvect + 63) >> 6;
+	memset(&bf162more, 0, sizeof bf162more);
+	for (uint32_t iv = nb64_1; iv < nmore; iv++) {
+		TVG64 &vv = tvg64[iv];
+		register uint64_t V = vv.v;
+		for (int j = 0; j < g17b.nclues; j++)
+			V &= vv.cells[g17b.tcluesxy[j]];
+		register uint32_t cc64;
+		while (bitscanforward64(cc64, V)) {
+			V ^= (uint64_t)1 << cc64;// clear bit
+			uint64_t i = vv.ti162[cc64], ibloc = i >> 6,
+				bit = (uint64_t)1 << (i - 64 * ibloc);
+			bf162more.bf[ibloc] |= bit;
+		}
+	}
 
-void TGUAS::Apply128(uint32_t i) {
-	cur_vect = vect[i];
-	memset(&bf162new, 0, sizeof bf162new);
-	for (int j = 0; j < g17b.nclues; j++)
-		cur_vect &= cellsv[g17b.tcluesxy[j]][i];
-	// build active gangsters out of active uas
-	register uint64_t * w = &bf162new.bf[0];
-	register uint32_t * tvtiw = &tvti[128 * i];
-	register int iua;
-
-	while ((iua = cur_vect.getFirst128()) >= 0) {
-		cur_vect.Clear(iua);
-		uint64_t i=tvtiw[iua],ibloc = i >> 6, 
-			bit = (uint64_t)1 << (i - 64 * ibloc);
-		w[ibloc] |= bit;
-	}
-	bf162new.New(bf162all);
-}
-void TGUAS::ApplyFirst256() {
-	memset(&bf162all, 0, sizeof bf162all);
-	cur_vect = vect[0];
-	for (int j = 0; j < g17b.nclues; j++)
-		cur_vect &= cellsv[g17b.tcluesxy[j]][0];
-	// build active gangsters out of active uas
-	register uint64_t * w = &bf162all.bf[0];
-	uint32_t cc64;
-	register uint64_t V = cur_vect.bf.u64[0];
-	while (bitscanforward64(cc64, V)) {
-		V ^= (uint64_t)1 << cc64;// clear bit
-		uint64_t i = tvti[cc64], ibloc = i >> 6,
-			bit = (uint64_t)1 << (i - 64 * ibloc);
-		w[ibloc] |= bit;
-	}
-	V = cur_vect.bf.u64[1];
-	while (bitscanforward64(cc64, V)) {
-		V ^= (uint64_t)1 << cc64;// clear bit
-		//cout << cc64+64 << " " << tvti[cc64+64] << endl;
-		uint64_t i = tvti[cc64+64], ibloc = i >> 6,
-			bit = (uint64_t)1 << (i - 64 * ibloc);
-		w[ibloc] |= bit;
-	}
-	cur_vect = vect[1];
-	for (int j = 0; j < g17b.nclues; j++)
-		cur_vect &= cellsv[g17b.tcluesxy[j]][1];
-
-	V = cur_vect.bf.u64[0];
-	while (bitscanforward64(cc64, V)) {
-		V ^= (uint64_t)1 << cc64;// clear bit
-		uint64_t i = tvti[cc64 + 128], ibloc = i >> 6,
-			bit = (uint64_t)1 << (i - 64 * ibloc);
-		w[ibloc] |= bit;
-	} 
-	V = cur_vect.bf.u64[1];
-	while (bitscanforward64(cc64, V)) {
-		V ^= (uint64_t)1 << cc64;// clear bit
-		uint64_t i = tvti[cc64 + 192], ibloc = i >> 6,
-			bit = (uint64_t)1 << (i - 64 * ibloc);
-		w[ibloc] |= bit;
-	}
+	bf162more.New(bf162all);
+	bf162all.Or(bf162more);
 }
 //______________main loop 64 filter on the first 64 uas
 void G17B::Do64uas() {
@@ -1447,24 +1427,16 @@ void G17B::CleanAll() {
 
 		// no more filter to apply check each band 3
 
-		uint32_t tvb3[256], nvb3 = 0; //Bands 3 still valid after 256 guas
-		tguas.ApplyFirst256();// all short guas 
+		uint32_t tvb3[256], nvb3 = 0; //Bands 3 still valid
+		tguas.ApplyFirst384();// all short guas 
 		for (int ib3 = 0; ib3 < genb12.nband3; ib3++)
 			if (genb12.bands3[ib3].Clean0())	tvb3[nvb3++] = ib3;
 		if (!nvb3) continue;
 		p_cpt2g[46]++;
-		p_cpt2g[52] += nvb3;
 
-		//____ apply other guas on still valid bands 3
-
-		uint32_t nblocs = tguas.Get_nblocs128();
-		memset(bf162more.bf, 0, sizeof bf162more.bf);
-		for (uint32_t i128 = 2; i128 < nblocs; i128++) {
-			tguas.Apply128(i128);
-			bf162more.Or(bf162new);
-		}
+		//____build mincount and filter on mincount in bands 3
+		tguas.ApplyMore();
 		if (bf162more.NotEmpty()) {
-			bf162all.Or(bf162more);
 			uint32_t n = nvb3;
 			nvb3 = 0;
 			for (uint32_t iw = 0; iw < n; iw++) {
@@ -1472,16 +1444,9 @@ void G17B::CleanAll() {
 				if (genb12.bands3[ib3].Cleanmore())
 					tvb3[nvb3++] = ib3;
 			}
+		}
 		if (!nvb3) continue;
-		}
-		else {// mincount was done in a temporary place
-			for (uint32_t iw = 0; iw < nvb3; iw++) {
-				uint32_t ib3 = tvb3[iw];
-				genb12.bands3[ib3].smin.SetMincount();
-			}
-		}
 		p_cpt2g[47]++;
-		p_cpt2g[53] += nvb3;
 
 	//__________no more guas2 guas3 process bands 3	
 
@@ -1531,16 +1496,16 @@ int STD_B3::Clean0() {// critical code first 256 guas
 		V ^= (uint64_t)1 << cc64;// clear bit
 		Insert3(cc64 +47);
 	}
-	MINCOUNT sm = smin;
-	sm.SetMincount();
-
-	if (sm.mincount > 6)return 0;
-	stack_count.u64 = g17b.stack_count.u64 + sm.Count_per_stack().u64;
+	sminr = smin;
+	smin.SetMincount();
+	if (smin.mincount > 6)return 0;
+	stack_count.u64 = g17b.stack_count.u64 + smin.Count_per_stack().u64;
 	if (stack_count.u16[0] > 6 || stack_count.u16[1] > 6 ||
 		stack_count.u16[2] > 6) return 0; // not ok
 	return 1;
 }
 int STD_B3::Cleanmore() {// after  first 256 guas
+	smin = sminr;
 	register uint32_t cc64;
 	register uint64_t V = bf162more.bf[0] & bf162b.bf[0];
 	while (bitscanforward64(cc64, V)) {
