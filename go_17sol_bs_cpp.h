@@ -457,7 +457,10 @@ no_more_uas:
 					for (int i5 = i4 + 1; i5 < nt; i5++) {
 						register uint64_t R5 = tbit[i5] | R4;
 						tclues[4] = tc[i5];
-						if (c56 & 1) 	myokt[pi.iend++].Enter(R5, &tclues[2]);
+						if (c56 & 1) {
+							myokt[pi.iend++].Enter(R5, &tclues[2]);
+							p_cpt[0]++;
+						}
 						if (c56 & 010)	for (int i6 = i5 + 1; i6 < nt; i6++) {
 							tclues[5] = tc[i6];
 							myokt[pi.iend++].Enter(tbit[i6] | R5, &tclues[2]);
