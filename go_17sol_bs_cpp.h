@@ -1748,6 +1748,7 @@ void G17B3HANDLER::GoMiss1(STD_B3 & b3) {
 	nuasb3of = g17b.noutmiss1;
 	active_b3 = smin.critbf;
 	known_b3 = rknown_b3 = 0;
+	wactive0 = g17b.wactive0;
 	wua = g17b.andmiss1;
 	Do_miss1();
 }
@@ -1772,7 +1773,7 @@ void G17B3HANDLER::Do_miss1(){
 	if (!nuasb3of) {// subcritical in hn if solved
 		int uabr = IsMultiple( active_b3);
 		if (uabr) {// one ua outfield seen
-			wua = uabr;
+			wua = uabr& wactive0;
 		}
 		else {// confirmed subcritical possible
 			G17B3HANDLER hn = *this;
