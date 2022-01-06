@@ -856,7 +856,7 @@ void G17B::Go2_Ext_Loop() {	//_____________ outer loop
 	activerb1= activerb2 = BIT_SET_27;
 	//_________________ external loop
 	while (++loopb1 << EXLNLOOP1) {
-		if (aigstop)break;
+		if (aigstop)return;
 		minratio = extlr.ratio=1000;
 		uint64_t ir = FindSockets(activeloop,2);
 		if (ir) 	ExtractMin(activeloop, bin_b1, bin_b2);
@@ -1118,29 +1118,57 @@ void G17B::Apply_Band1_Step() {// shrink the uas table
 		uint32_t ntua_192 = (ntusb1 > 192) ? 128 : ntusb1 - 64;
 		BuildBaseAndCellsVector(ntua_192, v64_192uas, vc64_192, &tusb1[64]);
 	}
+	else {
+		memset(&v64_192uas, 0, sizeof v64_192uas);
+		memset(vc64_192, 255, sizeof vc64_192);
+	}
 	if (ntusb1 > 192) {// 192_320
 		uint32_t ntua_320 = (ntusb1 > 320) ? 128 : ntusb1 - 192;
 		BuildBaseAndCellsVector(ntua_320, v192_320uas, vc192_320, &tusb1[192]);
+	}
+	else {
+		memset(&v192_320uas, 0, sizeof v64_192uas);
+		memset(vc192_320,255, sizeof vc64_192);
 	}
 	if (ntusb1 > 320) {// 320 448
 		uint32_t ntua_448 = (ntusb1 > 448) ? 128 : ntusb1 - 320;
 		BuildBaseAndCellsVector(ntua_448, v320_448uas, vc320_448, &tusb1[320]);
 	}
+	else {
+		memset(&v320_448uas, 0, sizeof v64_192uas);
+		memset(vc320_448, 255, sizeof vc64_192);
+	}
 	if (ntusb1 > 448) {// 448_576
 		uint32_t ntua_576 = (ntusb1 > 576) ? 128 : ntusb1 - 448;
 		BuildBaseAndCellsVector(ntua_576, v448_576uas, vc448_576, &tusb1[448]);
+	}
+	else {
+		memset(&v448_576uas, 0, sizeof v64_192uas);
+		memset(vc448_576, 255, sizeof vc64_192);
 	}
 	if (ntusb1 > 576) {// 576_704
 		uint32_t ntua_704 = (ntusb1 > 704) ? 128 : ntusb1 - 576;
 		BuildBaseAndCellsVector(ntua_704, v576_704uas, vc576_704, &tusb1[576]);
 	}
+	else {
+		memset(&v576_704uas, 0, sizeof v64_192uas);
+		memset(vc576_704, 255, sizeof vc64_192);
+	}
 	if (ntusb1 > 704) {// 704_832
 		uint32_t ntua_832 = (ntusb1 > 832) ? 128 : ntusb1 - 704;
 		BuildBaseAndCellsVector(ntua_832, v704_832uas, vc704_832, &tusb1[704]);
 	}
+	else {
+		memset(&v704_832uas, 0, sizeof v64_192uas);
+		memset(vc704_832, 255, sizeof vc64_192);
+	}
 	if (ntusb1 > 832) {// 832_960
 		uint32_t ntua_960 = (ntusb1 > 960) ? 128 : ntusb1 - 832;
 		BuildBaseAndCellsVector(ntua_960, v832_960uas, vc832_960, &tusb1[832]);
+	}
+	else {
+		memset(&v832_960uas, 0, sizeof v64_192uas);
+		memset(vc832_960, 255, sizeof vc64_192);
 	}
 	// _____ apply cells vectors to  band 1 step 3_6 or 3_7
 	ntvb1go = (uint32_t)index_xy_b1.ntotvb;
@@ -2329,7 +2357,7 @@ void G17B::NewUaB12() {
 		else moreuas_AB_small.Add(myua);
 		register uint64_t ua_add = myua | (cc64 << 59);
 		genuasb12.AddUACheck(ua_add);
-		tusb1[ntusb1++] = myua;
+		if(ntusb1<1000)tusb1[ntusb1++] = myua;
 		p_cpt2g[31]++;
 	}
 	else if (cc64 < 21)			moreuas_AB.Add(myua);
